@@ -3,7 +3,7 @@ package com.example.algorithms2homework;
 public class IntegerListImpl implements IntegerList {
     private static final int DEFAULT_SIZE = 15;
 
-    private final Integer[] data;
+    private Integer[] data;
     private int capacity;
 
     public IntegerListImpl() {
@@ -32,12 +32,18 @@ public class IntegerListImpl implements IntegerList {
         checkItem(item);
         checkIndex(index, true);
         if (capacity >= data.length) {
-            throw new IllegalArgumentException("Нет места!");
+            grow();
         }
         System.arraycopy(data, index, data, index + 1, capacity - index); // 1 шаг копируем значение на ячейку дальше
 
         capacity++; // увеличить
         return data[index] = item; //добавить элемент
+    }
+
+    private void grow() {     // увеличение массива в 1,5 раза
+        Integer[] newData = new Integer[(int) (data.length * 1.50)];
+        System.arraycopy(data, 0, newData, 0, capacity);
+        this.data = newData;
     }
 
     @Override
@@ -79,7 +85,7 @@ public class IntegerListImpl implements IntegerList {
         checkItem(item);
         Integer[] arrayForSearch = toArray();
 
-        sortInsertion(arrayForSearch);
+        mergeSort(arrayForSearch);
 
         int min = 0;
         int max = arrayForSearch.length - 1;
@@ -96,17 +102,18 @@ public class IntegerListImpl implements IntegerList {
         }
         return false;
     }
+
     @Override
     public int indexOf(Integer item) {
         checkItem(item);
         for (int i = 0; i < capacity; i++) {
             if (item.equals(data[i])) {
 
-            return i;
+                return i;
+            }
         }
+        return -1;
     }
-    return-1;
-}
 
     @Override
     public int lastIndexOf(Integer item) {
@@ -117,7 +124,7 @@ public class IntegerListImpl implements IntegerList {
                 return i;
             }
         }
-        return-1;
+        return -1;
     }
 
     @Override
@@ -128,7 +135,7 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public boolean equals(IntegerList otherList) {
-        if(size() != otherList.size()){
+        if (size() != otherList.size()) {
             return false;
         }
         for (int i = 0; i < capacity; i++) {
@@ -147,15 +154,15 @@ public class IntegerListImpl implements IntegerList {
 
     @Override
     public boolean isEmpty() {
-        return size()==0;
+        return size() == 0;
     }
 
     @Override
     public void clear() {
         for (int i = 0; i < capacity; i++) {
-            data[i]=null;
+            data[i] = null;
         }
-           capacity = 0;
+        capacity = 0;
     }
 
     @Override
@@ -166,7 +173,7 @@ public class IntegerListImpl implements IntegerList {
     }
 
     private void checkItem(Integer item) {
-        if (item==null){
+        if (item == null) {
             throw new IllegalArgumentException("Список не может содержать null");
         }
     }
@@ -184,17 +191,53 @@ public class IntegerListImpl implements IntegerList {
         }
     }
 
-    private static void sortInsertion(Integer[] arr){               // вставками
-        for (int i = 0; i < arr.length; i++) {
-            int temp = arr[i];
-            int j=i;
-            while (j>0 && arr[j-1]>= temp){
-                arr[j]= arr[j -1];
-                j--;
+    private static void mergeSort(Integer[] arr) {
+        if (arr.length < 2) {
+            return;
+        }
+        Integer mid = arr.length / 2;
+        Integer[] left = new Integer[mid];
+        Integer[] right = new Integer[arr.length - mid];
+
+       System.arraycopy(arr, 0, left, 0, right.length);
+       System.arraycopy(arr, mid, right, 0, right.length);
+
+        mergeSort(left);
+        mergeSort(right);
+
+        merge(arr, left, right);
+    }
+    private static void merge(Integer[] arr, Integer[] left, Integer[] right) {
+
+        int mainP = 0;
+        int leftP = 0;
+        int rightP = 0;
+        while (leftP < left.length && rightP < right.length) {
+            if (left[leftP] <= right[rightP]) {
+                arr[mainP++] = left[leftP++];
+            } else {
+                arr[mainP++] = right[rightP++];
             }
-            arr[j] = temp;
+        }
+        while (leftP < left.length) {
+            arr[mainP++] = left[leftP++];
+        }
+        while (rightP < right.length) {
+            arr[mainP++] = right[rightP++];
         }
     }
+
+    // private static void sortInsertion(Integer[] arr){               // вставками
+     //   for (int i = 0; i < arr.length; i++) {
+       //     int temp = arr[i];
+        //    int j=i;
+         //   while (j>0 && arr[j-1]>= temp){
+          //      arr[j]= arr[j -1];
+          //      j--;
+         //   }
+         //   arr[j] = temp;
+       // }
+   // }
 
 
 
